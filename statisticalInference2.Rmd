@@ -1,0 +1,99 @@
+---
+title: "Effect on Tooth Growth of Vitamin C with Different Supplement Types and Dosages"
+author: "Amiel Sy"
+date: "July 1, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Overview
+In this project we are going to analyze the ToothGrowth data from the datasets package in R which describes the effect of vitamin C on tooth growth of guinea pigs.
+
+
+The ToothGrowth dataset consists of 60 rows and 3 columns:
+
+len: Tooth length in millimeters  
+supp: Supplement type- VC (Vitamin C) or OJ (Orange Juice)  
+dose: Dose in milligrams (0.5, 1, or 2)  
+
+There are 10 guinea pigs for each combination of dose and supp.
+```{r}
+
+with(ToothGrowth, table(dose, supp))
+
+```
+
+## Exploratory data analysis
+
+####Effect of Supplement Type on Length
+```{r}
+library(ggplot2)
+gsupp <- ggplot(ToothGrowth, aes(supp, len)) + 
+  geom_boxplot() +
+  xlab('Supplement Type') +
+  ylab('Tooth Length (mm)') +
+  ggtitle('Supplement Type Vs Tooth Length')
+gsupp
+
+```
+
+From the graph above, we can see that Orange Juice has a higher tooth growth compared to Vitamin C.
+
+
+####Effect of Dosage on Length
+```{r}
+library(ggplot2)
+gdose <- ggplot(ToothGrowth, aes(as.factor(dose), len)) + 
+  geom_boxplot() +
+  xlab('Dose (mg) ') +
+  ylab('Tooth Length (mm)') +
+  ggtitle('Dosage Vs Tooth Length')
+gdose
+
+```
+
+From the graph above, we can see that higher dosage results in higher tooth growth.
+
+## Hypothesis Test
+
+###Assumptions
+
+The assumptions we make are:  
+1. Independence of the observations  
+2. Observations come from a nearly normal distribution.  
+
+We need these assumptions so that we can use the T-test. The null hypothesis for all the test below is that the two groups have equal tooth growth.
+
+### Differences in Supplement Types
+
+We check if there is a significant difference in tooth length between guinea pigs who take oranje juice and guinea pigs who take vitamin C. We use t-test because sample is small and we don't assume equal variances. We used a two-tailed test and we make alpha=0.05. 
+```{r}
+t.test(len ~ supp, ToothGrowth, var.equal = FALSE)$p.value
+```
+
+Since p-value>0.05, we failed to reject the null hypothesis, though it is worth noting that we can reject the null hypothesis in a one-tailed test. 
+
+### Differences in Dosage
+
+We check if there is a significant difference in tooth length between guinea pigs who take different doses. We use t-test in each pair of dosage with a two-tailed test using var.equal=FALSE, and alpha=0.05.
+
+####Test between 1mg and 2mg Dosage
+```{r}
+t.test(ToothGrowth$len[ToothGrowth$dose == 2],
+       ToothGrowth$len[ToothGrowth$dose == 1], var.equal = FALSE)$p.value
+
+t.test(ToothGrowth$len[ToothGrowth$dose == 2],
+       ToothGrowth$len[ToothGrowth$dose == .5], var.equal = FALSE)$p.value
+
+t.test(ToothGrowth$len[ToothGrowth$dose == .5],
+       ToothGrowth$len[ToothGrowth$dose == 1], var.equal = FALSE)$p.value
+```
+
+Since p-value<0.05 for all test, we reject all the null hypothesis, and accept that there is significant difference in tooth length between dose= 2, 1, and 0.5.
+
+# Conclusions
+We were able to show that the observed difference of tooth length across supplement types is statistically equal to zero, though increasing sample size might be able to change this.  
+
+We were able to show that the observed difference of tooth length across different dosages is statistically not equal to zero.
